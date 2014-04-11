@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="org.apache.cordova.openfilenative"
+    version="1.0.0">
+    <engines>
+        <engine name="cordova" version=">=2.9.0" />
+    </engines>
+    <name>Open File Native</name>
+    <description>Simple Plugin which allows yout to open various remote files (jpg, png, pdf, ...) in native Device App; Android 2.x+</description>
+    <author>Andreas Scherer</author>
+    <keywords>Image, Audio, Video, Native App, android</keywords>
+    <license>MIT</license>
+    <js-module src="www/OpenFileNative.js" name="OpenFileNative">
+        <clobbers target="window.openFileNative" />
+    </js-module>
+    <platform name="android">
+        <!-- android-specific elements -->
+        <config-file target="config.xml" parent="/*">
+            <feature name="OpenFileNative">
+                <param name="android-package" value="org.apache.cordova.openfilenative.OpenFileNative" />
+            </feature>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/*">
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+        </config-file>
+        <source-file src="src/android/OpenFileNative.java" target-dir="src/org/apache/cordova/openfilenative" />
+    </platform>
+</plugin>
