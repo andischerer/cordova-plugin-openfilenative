@@ -120,70 +120,68 @@ public class OpenFileNative extends CordovaPlugin {
                 if (connection != null)
                     connection.disconnect();
             }
-        return null;
-    }
-
-    @Override
-    protected void onProgressUpdate(Integer... progress) {
-        super.onProgressUpdate(progress);
-        mProgressDialog.setIndeterminate(false);
-        mProgressDialog.setMax(100);
-        mProgressDialog.setProgress(progress[0]);
-    }
-
-    @Override
-    protected void onPostExecute(String result) {
-        mProgressDialog.dismiss();
-        if (result != null){
-            Toast.makeText(context, "Download error: " + result, Toast.LENGTH_LONG).show();
-        } else {
-            Intent intent;
-            Uri uri = Uri.fromFile(downloadFile);
-            if (downloadFileName.contains(".gif")) {
-                // GIF file
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "image/gif");
-            } else if (downloadFileName.contains(".jpg") || downloadFileName.contains(".jpeg")) {
-                // JPG file
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "image/jpeg");
-            } else if (downloadFileName.contains(".txt")) {
-                // Text file
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "text/plain");
-            } else if (downloadFileName.contains(".mpg") || downloadFileName.contains(".mpeg") || downloadFileName.contains(".mpe") || downloadFileName.contains(".mp4") || downloadFileName.contains(".avi")) {
-                // Video files
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "video/*");
-            } else if (downloadFileName.contains(".doc") || downloadFileName.contains(".docx")) {
-                // Word document
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "application/msword");
-            } else if (downloadFileName.contains(".pdf")) {
-                // PDF file
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "application/pdf");
-            } else if (downloadFileName.contains(".ppt") || downloadFileName.contains(".pptx")) {
-                // Powerpoint file
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "application/vnd.ms-powerpoint");
-            } else if (downloadFileName.contains(".xls") || downloadFileName.contains(".xlsx")) {
-                // Excel file
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "application/vnd.ms-excel");
-            } else if (downloadFileName.contains(".rtf")) {
-                // RTF file
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, "application/rtf");
-            } else{
-                String mimeType = URLConnection.guessContentTypeFromName(downloadFileName);
-                intent = new Intent(Intent.ACTION_VIEW);
-                intent.setDataAndType(uri, mimeType);
-            }
-            context.startActivity(intent); // TODO handle ActivityNotFoundException
+            return null;
         }
-    }
 
-}
+        @Override
+        protected void onProgressUpdate(Integer... progress) {
+            super.onProgressUpdate(progress);
+            mProgressDialog.setIndeterminate(false);
+            mProgressDialog.setMax(100);
+            mProgressDialog.setProgress(progress[0]);
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            mProgressDialog.dismiss();
+            if (result != null) {
+                Toast.makeText(context, "Download error: " + result, Toast.LENGTH_LONG).show();
+            } else {
+                Uri uri = Uri.fromFile(downloadFile);
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                String mimeType = URLConnection.guessContentTypeFromName(downloadFileName);
+
+
+                if (downloadFileName.contains(".gif")) {
+                    // GIF file
+                    mimeType = "image/gif";
+                } else if (downloadFileName.contains(".jpg") || downloadFileName.contains(".jpeg")) {
+                    // JPG file
+                    mimeType = "image/jpeg";
+                } else if (downloadFileName.contains(".txt")) {
+                    // Text file
+                    mimeType = "text/plain";
+                } else if (downloadFileName.contains(".mpg") || downloadFileName.contains(".mpeg") || downloadFileName.contains(".mpe") || downloadFileName.contains(".mp4") || downloadFileName.contains(".avi")) {
+                    // Video files
+                    mimeType = "video/*";
+                } else if (downloadFileName.contains(".doc") || downloadFileName.contains(".docx")) {
+                    // Word document
+                    mimeType = "application/msword";
+                } else if (downloadFileName.contains(".pdf")) {
+                    // PDF file
+                    mimeType = "application/pdf";
+                } else if (downloadFileName.contains(".ppt") || downloadFileName.contains(".pptx")) {
+                    // Powerpoint file
+                    mimeType = "application/vnd.ms-powerpoint";
+                } else if (downloadFileName.contains(".xls") || downloadFileName.contains(".xlsx")) {
+                    // Excel file
+                    mimeType = "application/vnd.ms-excel";
+                } else if (downloadFileName.contains(".rtf")) {
+                    // RTF file
+                    mimeType = "application/rtf";
+                }
+
+                intent.setDataAndType(uri, mimeType);
+
+                try {
+                    context.startActivity(intent); // TODO handle ActivityNotFoundException
+                } catch (Exception e) {
+                    Toast.makeText(context, "Es ist keine entsprechende Anwendung installiert um den Dateityp \"" + mimeType + "\" zu öffnen.", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        }
+
+    }
 
 }
