@@ -28,11 +28,15 @@ public class OpenFileNative extends CordovaPlugin {
     @Override
     public boolean execute(String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
 
+        PluginResult.Status status = PluginResult.Status.OK;
+
         try {
             if (action.equals("openFileNative")) {
                 new DownloadTask(cordova.getActivity()).execute(args.getString(0));
                 callbackContext.success();
                 return true;
+            } else {
+                status = PluginResult.Status.INVALID_ACTION;
             }
         } catch (RuntimeException e) {  // KLUDGE for Activity Not Found
             e.printStackTrace();
@@ -148,6 +152,9 @@ public class OpenFileNative extends CordovaPlugin {
                 } else if (downloadFileName.contains(".jpg") || downloadFileName.contains(".jpeg")) {
                     // JPG file
                     mimeType = "image/jpeg";
+                } else if (downloadFileName.contains(".png")) {
+                    // PNG file
+                    mimeType = "image/png";
                 } else if (downloadFileName.contains(".txt")) {
                     // Text file
                     mimeType = "text/plain";
@@ -174,7 +181,7 @@ public class OpenFileNative extends CordovaPlugin {
                 intent.setDataAndType(uri, mimeType);
 
                 try {
-                    context.startActivity(intent); // TODO handle ActivityNotFoundException
+                    context.startActivity(intent);
                 } catch (Exception e) {
                     Toast.makeText(context, "Es ist keine entsprechende Anwendung installiert um den Dateityp \"" + mimeType + "\" zu öffnen.", Toast.LENGTH_LONG).show();
                 }
