@@ -3,12 +3,11 @@
 fork from https://github.com/markeeftb/FileOpener
 
 @author Andreas Scherer
-@version 1.0.0
+@version 1.0.2
 
 
-Simple Plugin which allows yout to open various remote files (jpg, png, pdf, ...) in
-native Device App. The Remote File Mime-Type must be supported by the platform and you
-have to install a native App (e.g. Adobe Reader to view PDF Files) to open it.
+Simple Plugin which allows yout to open various local and remote files (jpg, png, pdf, ...) in
+native Device App. The file mime-type must be supported and you have to install a native App (e.g. Adobe Reader to view PDF Files) to open it.
 
 Supports: Android 2.3+
 
@@ -21,6 +20,12 @@ plugin, but that is not required.
 $('body').on('click', 'a.openFileNative', function(e) {
     e.preventDefault();
     window.openFileNative.open($(this).attr('href'));
+    /*
+    targets for link-href could be:
+    - remote file (http://www.foo.bar/sample.jpg)
+    - local file (file:///mnt/sdcard/sample.jpg)
+    - local file relative (img/sample.jpg) => file in project-assets-www folder
+    */
 });
 ```````
 

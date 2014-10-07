@@ -2,9 +2,9 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="org.apache.cordova.openfilenative"
-    version="1.0.1">
+    version="1.0.2">
     <name>Open File Native</name>
-    <description>Simple Plugin which allows yout to open various remote files (jpg, png, pdf, ...) in native Device App; Android 2.x+</description>
+    <description>Simple Plugin which allows yout to open various local/remote files (jpg, png, pdf, ...) in native Device App; Android 2.x+</description>
     <author>Andreas Scherer</author>
     <keywords>Image, Audio, Video, Native App, android</keywords>
     <license>MIT</license>
