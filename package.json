@@ -1,0 +1,30 @@
+{
+  "name": "cordova-plugin-openfilenative",
+  "version": "1.0.2",
+  "description": "Cordova-Plugin which allows yout to open various local/remote files (jpg, png, pdf, ...) in native Device App; Android 2.x+",
+  "cordova": {
+    "id": "cordova-plugin-openfilenative",
+    "platforms": [
+      "android"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andischerer/cordova-plugin-openfilenative.git"
+  },
+  "keywords": [
+    "Image",
+    "Audio",
+    "Video",
+    "Native App",
+    "android",
+    "ecosystem:cordova",
+    "cordova-android"
+  ],
+  "author": "Andreas Scherer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/andischerer/cordova-plugin-openfilenative/issues"
+  },
+  "homepage": "https://github.com/andischerer/cordova-plugin-openfilenative#readme"
+}
