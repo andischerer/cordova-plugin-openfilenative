@@ -29,6 +29,13 @@ $('body').on('click', 'a.openFileNative', function(e) {
 });
 ```````
 
+## Supported protocols in linktarget
+- http://
+- https://
+- ftp://
+- file://
+- market://
+
 ## License
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this
