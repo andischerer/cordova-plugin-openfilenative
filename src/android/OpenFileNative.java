@@ -47,7 +47,11 @@ public class OpenFileNative extends CordovaPlugin {
                 public void run() {
                     try {
                         URI uri = new URI(fileToOpen);
-                        new DownloadAndOpenTask().execute(uri);
+                        if (uri.getScheme().equalsIgnoreCase("market")) {
+                            openMarketLink(fileToOpen);
+                        } else {
+                            new DownloadAndOpenTask().execute(uri);
+                        }
                         callbackContext.success();
                     } catch (URISyntaxException e) {
                         callbackContext.error("Error while opening file \"" + fileToOpen + "\".");
@@ -58,6 +62,10 @@ public class OpenFileNative extends CordovaPlugin {
         } else {
             return false;
         }
+    }
+
+    private void openMarketLink(String uriString){
+        context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uriString)));
     }
 
     private class DownloadAndOpenTask extends AsyncTask<URI, Integer, String> {
