@@ -3,8 +3,6 @@
 fork from https://github.com/markeeftb/FileOpener
 
 @author Andreas Scherer
-@version 1.0.2
-
 
 Simple Plugin which allows yout to open various local and remote files (jpg, png, pdf, ...) in
 native Device App. The file mime-type must be supported and you have to install a native App (e.g. Adobe Reader to view PDF Files) to open it.

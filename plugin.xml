@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
     xmlns:android="http://schemas.android.com/apk/res/android"
     id="cordova-plugin-openfilenative"
-    version="1.0.2">
+    version="1.0.3">
 
     <name>Open File Native</name>
     <description>Cordova-Plugin which allows yout to open various local/remote files (jpg, png, pdf, ...) in native Device App; Android 2.x+</description>
