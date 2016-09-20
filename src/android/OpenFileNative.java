@@ -227,7 +227,10 @@ public class OpenFileNative extends CordovaPlugin {
                 guessedFileName.contains(".mpeg") ||
                 guessedFileName.contains(".mpe") ||
                 guessedFileName.contains(".mp4") ||
-                guessedFileName.contains(".avi")
+                guessedFileName.contains(".avi") ||
+                guessedFileName.contains(".3gp") ||
+                guessedFileName.contains(".3gpp")  ||
+                guessedFileName.contains(".3g2")
             ) {
                 // Video files
                 mimeType = "video/*";
@@ -246,6 +249,10 @@ public class OpenFileNative extends CordovaPlugin {
             } else if (guessedFileName.contains(".rtf")) {
                 // RTF file
                 mimeType = "application/rtf";
+            } else if (guessedFileName.contains(".apk")) {
+                mimeType = "application/vnd.android.package-archive";
+            } else if (guessedFileName.contains(".eml")) {
+                mimeType = "message/rfc822";
             }
 
             intent.setDataAndType(uri, mimeType);
