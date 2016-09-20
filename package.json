@@ -1,6 +1,6 @@
 {
   "name": "cordova-plugin-openfilenative",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Cordova-Plugin which allows yout to open various local/remote files (jpg, png, pdf, ...) in native Device App; Android 2.x+",
   "cordova": {
     "id": "cordova-plugin-openfilenative",
