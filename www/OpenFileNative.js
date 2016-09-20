@@ -1,11 +1,14 @@
 // fork from https://github.com/markeeftb/FileOpener
 module.exports = {
-    open: function (url) {
-        var success = function () {
-            console.log("success!");
-        }, failure = function (error) {
-            console.log(error);
-        };
-        cordova.exec(success, failure, "OpenFileNative", "openFileNative", [url]);
+  open: function (params, successCallback, errorCallback) {
+    successCallback = successCallback || function() {};
+    errorCallback = errorCallback || function() {};
+    if (typeof params === 'string') {
+      params = {
+        file: params,
+        progressTitle: 'Open File'
+      };
     }
+    cordova.exec(successCallback, errorCallback, 'OpenFileNative', 'openFileNative', [params]);
+  }
 };

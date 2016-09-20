@@ -8,7 +8,6 @@ import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.webkit.URLUtil;
-import android.widget.Toast;
 
 import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
@@ -16,6 +15,7 @@ import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,6 +32,8 @@ import java.net.URLConnection;
 public class OpenFileNative extends CordovaPlugin {
 
     private Context context;
+    private String progressTitle;
+    private CallbackContext callback;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -40,21 +42,30 @@ public class OpenFileNative extends CordovaPlugin {
     }
 
     @Override
-    public boolean execute(String action, JSONArray args, final CallbackContext callbackContext) throws JSONException {
+    public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         if (action.equals("openFileNative")) {
-            final String fileToOpen = args.getString(0);
+            callback = callbackContext;
+
+            final JSONObject params = args.getJSONObject(0);
+            if (!params.has("file") || params.has("file") && params.getString("file").length() == 0) {
+                callback.error("File Parameter is missing");
+                return true;
+            }
+            final String fileToOpen = params.getString("file");
+            progressTitle = (params.has("progressTitle") && params.getString("progressTitle").length() > 0) ? params.getString("progressTitle") : "Open File";
+
             cordova.getActivity().runOnUiThread(new Runnable() {
                 public void run() {
                     try {
                         URI uri = new URI(fileToOpen);
-                        if (uri.getScheme().equalsIgnoreCase("market")) {
-                            openMarketLink(fileToOpen);
+                        if (uri.isAbsolute() && uri.getScheme().equalsIgnoreCase("market")) {
+                            context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(fileToOpen)));
+                            callback.success();
                         } else {
                             new DownloadAndOpenTask().execute(uri);
                         }
-                        callbackContext.success();
                     } catch (URISyntaxException e) {
-                        callbackContext.error("Error while opening file \"" + fileToOpen + "\".");
+                        callback.error("Error while opening file \"" + fileToOpen + "\".");
                     }
                 }
             });
@@ -64,11 +75,7 @@ public class OpenFileNative extends CordovaPlugin {
         }
     }
 
-    private void openMarketLink(String uriString){
-        context.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uriString)));
-    }
-
-    private class DownloadAndOpenTask extends AsyncTask<URI, Integer, String> {
+    private class DownloadAndOpenTask extends AsyncTask<URI, Integer, Boolean> {
 
         // declare the dialog as a member field of your activity
         private ProgressDialog mProgressDialog;
@@ -80,7 +87,7 @@ public class OpenFileNative extends CordovaPlugin {
 
             // instantiate it within the onCreate method
             mProgressDialog = new ProgressDialog(context);
-            mProgressDialog.setMessage("Open file");
+            mProgressDialog.setMessage(progressTitle);
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mProgressDialog.setCancelable(true);
@@ -88,7 +95,7 @@ public class OpenFileNative extends CordovaPlugin {
         }
 
         @Override
-        protected String doInBackground(URI... fileUris) {
+        protected Boolean doInBackground(URI... fileUris) {
             InputStream input = null;
             OutputStream output = null;
             HttpURLConnection httpConnection = null;
@@ -124,14 +131,20 @@ public class OpenFileNative extends CordovaPlugin {
                     // expect HTTP 200 OK, so we don't mistakenly save error report
                     // instead of the file
                     if (httpConnection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-                        return "Server returned HTTP " + httpConnection.getResponseCode()
-                                + " " + httpConnection.getResponseMessage();
+                        callback.error("Server returned HTTP " + httpConnection.getResponseCode()
+                                + " " + httpConnection.getResponseMessage());
+                        return false;
                     }
 
                     // this will be useful to display download percentage
                     // might be -1: server did not report the length
                     fileLength = httpConnection.getContentLength();
                     input = httpConnection.getInputStream();
+                }
+
+                if (input == null) {
+                    callback.error("Could not open file '" + uri.toString() + "'");
+                    return false;
                 }
 
                 // download the file and save it in externalcachedir
@@ -145,7 +158,7 @@ public class OpenFileNative extends CordovaPlugin {
                 while ((count = input.read(data)) != -1) {
                     // allow canceling with back button
                     if (isCancelled())
-                        return null;
+                        return true;
                     total += count;
                     // publishing the progress....
                     if (fileLength > 0) // only if total length is known
@@ -153,9 +166,11 @@ public class OpenFileNative extends CordovaPlugin {
                     output.write(data, 0, count);
                 }
             } catch (FileNotFoundException e) {
-                return "File \"" + uri.toString() + "\" does not exists, could not be opened.";
+                callback.error("File \"" + uri.toString() + "\" does not exists, could not be opened.");
+                return false;
             } catch (Exception e) {
-                return e.toString();
+                callback.error(e.toString());
+                return false;
             } finally {
                 try {
                     if (output != null)
@@ -168,7 +183,7 @@ public class OpenFileNative extends CordovaPlugin {
                 if (httpConnection != null)
                     httpConnection.disconnect();
             }
-            return null;
+            return true;
         }
 
         @Override
@@ -180,11 +195,9 @@ public class OpenFileNative extends CordovaPlugin {
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(Boolean result) {
             mProgressDialog.dismiss();
-            if (result != null) {
-                Toast.makeText(context, "Download error: " + result, Toast.LENGTH_LONG).show();
-            } else {
+            if (result) {
                 openFile(targetFile.getAbsolutePath());
             }
         }
@@ -209,7 +222,13 @@ public class OpenFileNative extends CordovaPlugin {
             } else if (guessedFileName.contains(".txt")) {
                 // Text file
                 mimeType = "text/plain";
-            } else if (guessedFileName.contains(".mpg") || guessedFileName.contains(".mpeg") || guessedFileName.contains(".mpe") || guessedFileName.contains(".mp4") || guessedFileName.contains(".avi")) {
+            } else if (
+                guessedFileName.contains(".mpg") ||
+                guessedFileName.contains(".mpeg") ||
+                guessedFileName.contains(".mpe") ||
+                guessedFileName.contains(".mp4") ||
+                guessedFileName.contains(".avi")
+            ) {
                 // Video files
                 mimeType = "video/*";
             } else if (guessedFileName.contains(".doc") || guessedFileName.contains(".docx")) {
@@ -233,8 +252,9 @@ public class OpenFileNative extends CordovaPlugin {
 
             try {
                 context.startActivity(intent);
+                callback.success();
             } catch (Exception e) {
-                Toast.makeText(context, "There is no corresponding application installed for opening \"" + mimeType + "\" files.", Toast.LENGTH_LONG).show();
+                callback.error("There is no corresponding application installed for opening \"" + mimeType + "\" files.");
             }
 
         }
