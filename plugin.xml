@@ -11,6 +11,8 @@
     <repo>https://github.com/andischerer/cordova-plugin-openfilenative.git</repo>
     <issue>https://github.com/andischerer/cordova-plugin-openfilenative/issues</issue>
 
+    <dependency id="cordova-plugin-compat" version="^1.0.0" />
+
     <js-module src="www/OpenFileNative.js" name="OpenFileNative">
         <clobbers target="openFileNative" />
     </js-module>

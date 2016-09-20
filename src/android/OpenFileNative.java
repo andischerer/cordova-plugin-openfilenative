@@ -1,8 +1,10 @@
 // fork from https://github.com/markeeftb/FileOpener
 package org.apache.cordova.openfilenative;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.net.Uri;
@@ -13,6 +15,7 @@ import org.apache.cordova.CallbackContext;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.PermissionHelper;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,6 +37,7 @@ public class OpenFileNative extends CordovaPlugin {
     private Context context;
     private String progressTitle;
     private CallbackContext callback;
+    private final int permissionRequestCode = 865;
 
     @Override
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
@@ -45,6 +49,11 @@ public class OpenFileNative extends CordovaPlugin {
     public boolean execute(String action, final JSONArray args, final CallbackContext callbackContext) throws JSONException {
         if (action.equals("openFileNative")) {
             callback = callbackContext;
+
+            if (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                PermissionHelper.requestPermission(this, permissionRequestCode, Manifest.permission.READ_EXTERNAL_STORAGE);
+                return true;
+            }
 
             final JSONObject params = args.getJSONObject(0);
             if (!params.has("file") || params.has("file") && params.getString("file").length() == 0) {
