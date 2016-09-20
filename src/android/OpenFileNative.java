@@ -80,6 +80,7 @@ public class OpenFileNative extends CordovaPlugin {
         // declare the dialog as a member field of your activity
         private ProgressDialog mProgressDialog;
         private File targetFile;
+        private boolean canceled = false;
 
         @Override
         protected void onPreExecute() {
@@ -91,6 +92,12 @@ public class OpenFileNative extends CordovaPlugin {
             mProgressDialog.setIndeterminate(true);
             mProgressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
             mProgressDialog.setCancelable(true);
+            mProgressDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    canceled = true;
+                }
+            });
             mProgressDialog.show();
         }
 
@@ -157,8 +164,9 @@ public class OpenFileNative extends CordovaPlugin {
                 int count;
                 while ((count = input.read(data)) != -1) {
                     // allow canceling with back button
-                    if (isCancelled())
-                        return true;
+                    if (canceled) {
+                        return false;
+                    }
                     total += count;
                     // publishing the progress....
                     if (fileLength > 0) // only if total length is known
@@ -196,7 +204,9 @@ public class OpenFileNative extends CordovaPlugin {
 
         @Override
         protected void onPostExecute(Boolean result) {
-            mProgressDialog.dismiss();
+            if (mProgressDialog != null) {
+                mProgressDialog.dismiss();
+            }
             if (result) {
                 openFile(targetFile.getAbsolutePath());
             }
